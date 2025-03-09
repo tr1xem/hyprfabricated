@@ -208,6 +208,7 @@ class BluetoothButton(Box):
             v_align="fill",
             h_expand=True,
             v_expand=True,
+            tooltip_text="Work in progress!",  # Remove when done
         )
         self.widgets = kwargs["widgets"]
 
@@ -298,6 +299,7 @@ class NightModeButton(Button):
             h_expand=True,
             child=self.night_mode_box,
             on_clicked=self.toggle_hyprsunset,
+            tooltip_text="Work in progress!",  # Remove when done
         )
         add_hover_cursor(self)  # <-- Added hover
 
@@ -373,6 +375,7 @@ class CaffeineButton(Button):
             h_expand=True,
             child=self.caffeine_box,
             on_clicked=self.toggle_wlinhibit,
+            tooltip_text="Work in progress!",  # Remove when done
         )
         add_hover_cursor(self)  # <-- Added hover
 
