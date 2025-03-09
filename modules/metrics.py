@@ -1,3 +1,4 @@
+
 import psutil
 import subprocess
 import re
@@ -55,6 +56,7 @@ class Metrics(Box):
 
         self.cpu_usage = Scale(
             name="cpu-usage",
+            tooltip_text="Cpu usage",
             value=0.25,
             orientation='v',
             inverted=True,
@@ -65,6 +67,7 @@ class Metrics(Box):
         self.cpu_label = Label(
             name="cpu-label",
             markup=icons.cpu,
+            tooltip_text="Cpu usage",
         )
 
         self.cpu = Box(
@@ -79,6 +82,7 @@ class Metrics(Box):
 
         self.ram_usage = Scale(
             name="ram-usage",
+            tooltip_text="Memory usage",
             value=0.5,
             orientation='v',
             inverted=True,
@@ -89,6 +93,7 @@ class Metrics(Box):
         self.ram_label = Label(
             name="ram-label",
             markup=icons.memory,
+            tooltip_text="Memory usage",
         )
 
         self.ram = Box(
@@ -103,6 +108,7 @@ class Metrics(Box):
 
         self.disk_usage = Scale(
             name="disk-usage",
+            tooltip_text="Disk usage",
             value=0.75,
             orientation='v',
             inverted=True,
@@ -113,6 +119,7 @@ class Metrics(Box):
         self.disk_label = Label(
             name="disk-label",
             markup=icons.disk,
+            tooltip_text="Disk usage",
         )
 
         self.disk = Box(
@@ -176,6 +183,7 @@ class MetricsSmall(Overlay):
         )
         self.cpu_overlay = Overlay(
             name="metrics-cpu-overlay",
+            tooltip_text="Cpu usage",
             child=self.cpu_circle,
             overlays=[self.cpu_icon],
         )
