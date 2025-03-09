@@ -10,6 +10,15 @@ from fabric.widgets.circularprogressbar import CircularProgressBar
 from services.brightness import Brightness
 import modules.icons as icons
 
+
+def add_hover_cursor(widget):
+    # Add enter/leave events to change the cursor
+    widget.add_events(Gdk.EventMask.ENTER_NOTIFY_MASK | Gdk.EventMask.LEAVE_NOTIFY_MASK)
+    widget.connect("enter-notify-event", lambda w, e: w.get_window().set_cursor(Gdk.Cursor.new_from_name(w.get_display(), "pointer")) if w.get_window() else None)
+    widget.connect("leave-notify-event", lambda w, e: w.get_window().set_cursor(None) if w.get_window() else None)
+
+
+
 class VolumeSlider(Scale):
     def __init__(self, **kwargs):
         super().__init__(
@@ -27,6 +36,7 @@ class VolumeSlider(Scale):
         self.connect("value-changed", self.on_value_changed)
         self.add_style_class("vol")
         self.on_speaker_changed()
+        add_hover_cursor(self),  # <-- Added hover
 
     def on_new_speaker(self, *args):
         if self.audio.speaker:
@@ -52,6 +62,7 @@ class MicSlider(Scale):
             increments=(0.01, 0.1),
             **kwargs,
         )
+        add_hover_cursor(self),  # <-- Added hover
         self.audio = Audio()
         self.audio.connect("notify::microphone", self.on_new_microphone)
         if self.audio.microphone:
@@ -84,6 +95,7 @@ class BrightnessSlider(Scale):
             increments=(5, 10),
             **kwargs,
         )
+        add_hover_cursor(self),  # <-- Added hover
         self.client = Brightness.get_initial()
         if self.client.screen_brightness == -1:
             self.destroy()
