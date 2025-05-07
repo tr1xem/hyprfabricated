@@ -441,18 +441,19 @@ class HyprConfGUI(Window):
         super().__init__(
             title="Hyprfabricated Settings",
             name="hyprfabricated-settings-window",
-            size=(650, 550),  # Adjusted size for vertical tabs
+            default_width=700,  # Use default_width/height instead of fixed size
+            default_height=600,
             **kwargs,
         )
 
-        self.set_resizable(False)
+        self.set_resizable(True)  # Allow window resizing
 
         self.selected_face_icon = None
         self.show_lock_checkbox = show_lock_checkbox
         self.show_idle_checkbox = show_idle_checkbox
 
         # Overall vertical box to hold the main content and bottom buttons
-        root_box = Box(orientation="v", spacing=10, style="margin: 10px;")
+        root_box = Box(orientation="v", spacing=10, style="margin: 10px;", v_expand=True)
         self.add(root_box)
 
         # Main horizontal box for switcher and stack
@@ -461,7 +462,7 @@ class HyprConfGUI(Window):
 
         # --- Tab Control ---
         self.tab_stack = Stack(
-            transition_type="slide-up-down",  # Change transition for vertical feel
+            transition_type="slide-up-down",
             transition_duration=250,
             v_expand=True,
             h_expand=True,
@@ -527,9 +528,11 @@ class HyprConfGUI(Window):
             h_expand=True,
             v_expand=True,
         )
+        # Remove fixed height constraints
+        scrolled_window.set_propagate_natural_height(True)  # Let content determine size
         # Remove fixed height constraints to allow stack to fill space
-        scrolled_window.set_min_content_height(300)
-        scrolled_window.set_max_content_height(300)
+        # scrolled_window.set_min_content_height(300)
+        # scrolled_window.set_max_content_height(300)
 
         # Main container with padding
         main_vbox = Box(orientation="v", spacing=10, style="margin: 15px;")
@@ -623,8 +626,10 @@ class HyprConfGUI(Window):
             v_expand=True,
         )
         # Remove fixed height constraints
-        scrolled_window.set_min_content_height(300)
-        scrolled_window.set_max_content_height(300)
+        scrolled_window.set_propagate_natural_height(True)  # Let content determine size
+        # Remove fixed height constraints to allow stack to fill space
+        # scrolled_window.set_min_content_height(300)
+        # scrolled_window.set_max_content_height(300)
 
         # Main container with padding
         vbox = Box(orientation="v", spacing=15, style="margin: 15px;")
@@ -956,8 +961,7 @@ class HyprConfGUI(Window):
             h_expand=True,
             v_expand=True,
         )
-        scrolled_window.set_min_content_height(300)
-        scrolled_window.set_max_content_height(300)
+        scrolled_window.set_propagate_natural_height(True)  # Let content determine size
         vbox = Box(orientation="v", spacing=15, style="margin: 15px;")
         scrolled_window.add(vbox)
         components_header = Label(
@@ -1091,8 +1095,7 @@ class HyprConfGUI(Window):
             h_expand=True,
             v_expand=True,
         )
-        scrolled_window.set_min_content_height(300)
-        scrolled_window.set_max_content_height(300)
+        scrolled_window.set_propagate_natural_height(True)  # Let content determine size
         vbox = Box(orientation="v", spacing=15, style="margin: 15px;")
         scrolled_window.add(vbox)
         components_header = Label(markup="<b>Miscellaneous</b>", h_align="start")
@@ -1147,9 +1150,10 @@ class HyprConfGUI(Window):
             h_expand=True,
             v_expand=True,
         )
+        scrolled_window.set_propagate_natural_height(True)  # Let content determine size
         # Remove fixed height constraints
-        scrolled_window.set_min_content_height(300)
-        scrolled_window.set_max_content_height(300)
+        # scrolled_window.set_min_content_height(300)
+        # scrolled_window.set_max_content_height(300)
 
         # Main container with padding
         vbox = Box(orientation="v", spacing=15, style="margin: 15px;")
@@ -1451,14 +1455,14 @@ class HyprConfGUI(Window):
             current_bind_vars[prefix_key] = prefix_entry.get_text()
             current_bind_vars[suffix_key] = suffix_entry.get_text()
 
-        bind_vars["wallpapers_dir"] = self.wall_dir_chooser.get_filename()
-        bind_vars["vertical"] = self.vertical_switch.get_active()
-        bind_vars["centered_bar"] = self.centered_switch.get_active()
-        bind_vars["dock_enabled"] = self.dock_switch.get_active()
-        bind_vars["dock_always_occluded"] = self.dock_hover_switch.get_active()
-        bind_vars["dock_icon_size"] = int(self.dock_size_scale.value)
-        bind_vars["terminal_command"] = self.terminal_entry.get_text()
-        bind_vars["corners_visible"] = self.corners_switch.get_active()
+        current_bind_vars["wallpapers_dir"] = self.wall_dir_chooser.get_filename()
+        current_bind_vars["vertical"] = self.vertical_switch.get_active()
+        current_bind_vars["centered_bar"] = self.centered_switch.get_active()
+        current_bind_vars["dock_enabled"] = self.dock_switch.get_active()
+        current_bind_vars["dock_always_occluded"] = self.dock_hover_switch.get_active()
+        current_bind_vars["dock_icon_size"] = int(self.dock_size_scale.value)
+        current_bind_vars["terminal_command"] = self.terminal_entry.get_text()
+        current_bind_vars["corners_visible"] = self.corners_switch.get_active()
         current_bind_vars["bar_workspace_show_number"] = self.ws_num_switch.get_active()
         current_bind_vars["bar_workspace_use_chinese_numerals"] = (
             self.ws_chinese_switch.get_active()
@@ -1466,14 +1470,14 @@ class HyprConfGUI(Window):
 
         for component_name, switch in self.component_switches.items():
             config_key = f"bar_{component_name}_visible"
-            bind_vars[config_key] = switch.get_active()
+            current_bind_vars[config_key] = switch.get_active()
 
         for component_name, switch in self.widgets_switches.items():
             config_key = f"widgets_{component_name}_visible"
-            bind_vars[config_key] = switch.get_active()
+            current_bind_vars[config_key] = switch.get_active()
         for component_name, switch in self.misc_switches.items():
             config_key = f"misc_{component_name}"
-            bind_vars[config_key] = switch.get_active()
+            current_bind_vars[config_key] = switch.get_active()
         # for debugging purposes
         # for component_name, switch in self.widgets_switches.items():
         #     config_key = f"wid_{component_name}_visible"
@@ -1486,22 +1490,22 @@ class HyprConfGUI(Window):
         #     print(config_key, switch.get_active())
         config_json = os.path.expanduser(f"~/.config/{APP_NAME_CAP}/config/config.json")
         # Save metrics visibility
-        bind_vars["metrics_visible"] = {
+        current_bind_vars["metrics_visible"] = {
             k: s.get_active() for k, s in self.metrics_switches.items()
         }
-        bind_vars["metrics_small_visible"] = {
+        current_bind_vars["metrics_small_visible"] = {
             k: s.get_active() for k, s in self.metrics_small_switches.items()
         }
 
-        bind_vars["bar_metrics_disks"] = []
+        current_bind_vars["bar_metrics_disks"] = []
         for entry in self.disk_entries.children:
-            bind_vars["bar_metrics_disks"].append(entry.children[0].get_text())
+            current_bind_vars["bar_metrics_disks"].append(entry.children[0].get_text())
 
         config_json = os.path.expanduser(f"~/.config/{APP_NAME_CAP}/config/config.json")
         os.makedirs(os.path.dirname(config_json), exist_ok=True)
         try:
             with open(config_json, "w") as f:
-                json.dump(bind_vars, f, indent=4)
+                json.dump(current_bind_vars, f, indent=4)
         except Exception as e:
             print(f"Error saving config.json: {e}")
 
@@ -1533,10 +1537,10 @@ class HyprConfGUI(Window):
                 print(f"Error saving config.json: {e}")
 
             # Process face icon if selected
-            if selected_icon_path:
+            if self.selected_face_icon:
                 print(f"{time.time():.4f}: Processing face icon...")
                 try:
-                    img = Image.open(selected_icon_path)
+                    img = Image.open(self.selected_face_icon)
                     side = min(img.size)
                     left = (img.width - side) // 2
                     top = (img.height - side) // 2
@@ -1752,9 +1756,7 @@ class HyprConfGUI(Window):
             current_face = os.path.expanduser("~/.face.icon")
             try:
                 if os.path.exists(current_face):
-                    pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(
-                        current_face, 64, 64
-                    )
+                    pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(current_face, 64, 64)
                     self.face_image.set_from_pixbuf(pixbuf)
                 else:
                     self.face_image.set_from_icon_name("user-info", 64)

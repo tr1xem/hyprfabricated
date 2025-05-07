@@ -50,9 +50,11 @@ class Bar(Window):
             invert_scroll=True,
             empty_scroll=True,
             v_align="fill",
+            h_align="fill",
             orientation="h" if not data.VERTICAL else "v",
             spacing=8,
-            # Use data module to determine the label
+            h_expand=True,
+            v_expand=True,
             buttons=[WorkspaceButton(id=i, label=None) for i in range(1, 11)],
         )
 
@@ -61,12 +63,15 @@ class Bar(Window):
             invert_scroll=True,
             empty_scroll=True,
             v_align="fill",
+            h_align="fill",
             orientation="h" if not data.VERTICAL else "v",
             spacing=0 if not data.BAR_WORKSPACE_USE_CHINESE_NUMERALS else 4,
+            h_expand=True,
+            v_expand=True,
             buttons=[
                 WorkspaceButton(
-                    h_expand=False,
-                    v_expand=False,
+                    h_expand=True,
+                    v_expand=True,
                     h_align="center",
                     v_align="center",
                     id=i,
@@ -83,6 +88,8 @@ class Bar(Window):
 
         self.ws_container = Box(
             name="workspaces-container",
+            h_expand=True,
+            v_expand=True,
             children=(
                 self.workspaces
                 if not data.BAR_WORKSPACE_SHOW_NUMBER
@@ -93,6 +100,8 @@ class Bar(Window):
         self.button_tools = Button(
             name="button-bar",
             on_clicked=lambda *_: self.tools_menu(),
+            h_expand=True,
+            v_expand=True,
             child=Label(name="button-bar-label", markup=icons.toolbox),
         )
 
@@ -114,7 +123,9 @@ class Bar(Window):
 
         self.date_time = DateTime(
             name="date-time",
-            formatters=["%I:%M%P"] if not data.VERTICAL else ["%I\n%M"],
+            formatters=["%I:%M%P %B %d, %Y"]
+            if not data.VERTICAL
+            else ["%I\n%M\n%B %d\n%Y"],
             h_align="center" if not data.VERTICAL else "fill",
             v_align="center",
             h_expand=True,
@@ -124,6 +135,8 @@ class Bar(Window):
         self.button_apps = Button(
             name="button-bar",
             on_clicked=lambda *_: self.search_apps(),
+            h_expand=True,
+            v_expand=True,
             child=Label(name="button-bar-label", markup=icons.apps),
         )
         self.button_apps.connect("enter_notify_event", self.on_button_enter)
@@ -132,6 +145,8 @@ class Bar(Window):
         self.button_power = Button(
             name="button-bar",
             on_clicked=lambda *_: self.power_menu(),
+            h_expand=True,
+            v_expand=True,
             child=Label(name="button-bar-label", markup=icons.shutdown),
         )
         self.button_power.connect("enter_notify_event", self.on_button_enter)
@@ -140,6 +155,8 @@ class Bar(Window):
         self.button_overview = Button(
             name="button-bar",
             on_clicked=lambda *_: self.overview(),
+            h_expand=True,
+            v_expand=True,
             child=Label(name="button-bar-label", markup=icons.windows),
         )
         self.button_overview.connect("enter_notify_event", self.on_button_enter)
@@ -148,9 +165,6 @@ class Bar(Window):
         self.control = ControlSmall()
         self.metrics = MetricsSmall()
         self.battery = Battery()
-
-        # Apply visibility settings to components
-        self.apply_component_visibility()
 
         self.rev_right = [
             self.metrics,
@@ -246,7 +260,6 @@ class Bar(Window):
         self.v_all_children.extend(self.v_center_children)
         self.v_all_children.extend(self.v_end_children)
 
-        # Use centered layout when both vertical and centered_bar are enabled
         is_centered_bar = data.VERTICAL and getattr(data, "CENTERED_BAR", False)
 
         self.bar_inner = CenterBox(
@@ -301,12 +314,10 @@ class Bar(Window):
 
         self.hidden = False
 
-        # self.show_all()
         self.systray._update_visibility()
         self.chinese_numbers()
 
     def apply_component_visibility(self):
-        """Apply saved visibility settings to all components"""
         components = {
             "button_apps": self.button_apps,
             "systray": self.systray,
@@ -329,7 +340,6 @@ class Bar(Window):
                 widget.set_visible(self.component_visibility[component_name])
 
     def toggle_component_visibility(self, component_name):
-        """Toggle visibility for a specific component"""
         components = {
             "button_apps": self.button_apps,
             "systray": self.systray,
@@ -348,16 +358,13 @@ class Bar(Window):
         }
 
         if component_name in components and component_name in self.component_visibility:
-            # Toggle the visibility state
             self.component_visibility[component_name] = not self.component_visibility[
                 component_name
             ]
-            # Apply the new state
             components[component_name].set_visible(
                 self.component_visibility[component_name]
             )
 
-            # Update the configuration
             config_file = os.path.expanduser(
                 f"~/.config/{data.APP_NAME}/config/config.json"
             )
@@ -365,7 +372,6 @@ class Bar(Window):
                 with open(config_file, "r") as f:
                     config = json.load(f)
 
-                # Update the config with the new visibility state
                 config[f"bar_{component_name}_visible"] = self.component_visibility[
                     component_name
                 ]
@@ -388,7 +394,6 @@ class Bar(Window):
             window.set_cursor(None)
 
     def on_button_clicked(self, *args):
-        # Ejecuta notify-send cuando se hace clic en el botón
         exec_shell_command_async("notify-send 'Botón presionado' '¡Funciona!'")
 
     def search_apps(self):

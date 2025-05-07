@@ -7,7 +7,8 @@ from fabric.widgets.image import Image
 import gi
 gi.require_version('Gtk', '3.0')
 gi.require_version('GdkPixbuf', '2.0')
-from gi.repository import Gtk, GdkPixbuf, Gdk
+from gi.repository import Gtk, GdkPixbuf, Gdk, GObject
+
 from modules.widgets import Widgets
 from modules.pins import Pins
 from modules.wallpapers import WallpaperSelector
@@ -19,54 +20,59 @@ class Dashboard(Box):
             name="dashboard",
             orientation="v",
             spacing=8,
-            h_align="center",
-            v_align="center",
+            h_align="fill",
+            v_align="fill",
             h_expand=True,
+            v_expand=True,
             visible=True,
             all_visible=True,
         )
 
         self.notch = kwargs["notch"]
         
-        # Remove the key press setup - Notch will handle this
+        # Create main container
+        self.main_box = Box(
+            orientation="v",
+            spacing=8,
+            h_align="fill",
+            v_align="fill",
+            h_expand=True,
+            v_expand=True,
+        )
         
+        # Set minimum size on main_box directly
+        self.main_box.set_size_request(1033, 400)
+        
+        # Initialize widgets first
         self.widgets = Widgets(notch=self.notch)
         self.pins = Pins()
         self.kanban = Kanban()
         self.wallpapers = WallpaperSelector()
-
+        
+        # Create stack
         self.stack = Stack(
             name="stack",
             transition_type="slide-left-right",
             transition_duration=500,
+            h_align="fill",
+            v_align="fill",
+            h_expand=True,
+            v_expand=True,
         )
-
+        
+        # Create switcher after stack
         self.switcher = Gtk.StackSwitcher(
             name="switcher",
             spacing=8,
         )
+        self.switcher.set_stack(self.stack)
+        self.switcher.set_hexpand(True)
+        self.switcher.set_vexpand(False)
+        self.switcher.set_halign(Gtk.Align.FILL)
+        self.switcher.set_valign(Gtk.Align.START)
+        self.switcher.set_homogeneous(True)
 
-        self.label_1 = Label(
-            name="label-1",
-            label="Widgets",
-        )
-
-        self.label_2 = Label(
-            name="label-2",
-            label="Pins",
-        )
-
-        self.label_3 = Label(
-            name="label-3",
-            label="Kanban",
-        )
-
-        self.label_4 = Label(
-            name="label-4",
-            label="Wallpapers",
-        )
-
-        # Create the coming_soon labels as attributes for later update
+        # Create coming soon page
         self.coming_soon_start_label = Label(
             name="coming-soon-label",
             label="I need...",
@@ -95,7 +101,7 @@ class Dashboard(Box):
             spacing=8,
             children=[
                 Box(
-                    h_align="center",
+                    h_align="fill",
                     v_align="fill",
                     h_expand=True,
                     v_expand=True,
@@ -103,7 +109,7 @@ class Dashboard(Box):
                 ),
                 self.soon,
                 Box(
-                    h_align="center",
+                    h_align="fill",
                     v_align="fill",
                     h_expand=True,
                     v_expand=True,
@@ -112,24 +118,21 @@ class Dashboard(Box):
             ],
         )
 
+        # Add pages to stack
         self.stack.add_titled(self.widgets, "widgets", "Widgets")
         self.stack.add_titled(self.pins, "pins", "Pins")
         self.stack.add_titled(self.kanban, "kanban", "Kanban")
         self.stack.add_titled(self.wallpapers, "wallpapers", "Wallpapers")
         self.stack.add_titled(self.coming_soon, "coming-soon", "Coming soon...")
 
-        self.switcher.set_stack(self.stack)
-        self.switcher.set_hexpand(True)
-        self.switcher.set_homogeneous(True)
-        self.switcher.set_can_focus(True)
+        # Build widget hierarchy
+        self.main_box.pack_start(self.switcher, False, True, 0)
+        self.main_box.pack_start(self.stack, True, True, 0)
+        self.add(self.main_box)
 
-        # Add signal to detect when the visible child changes
+        # Connect visible-child signal after stack is fully set up
         self.stack.connect("notify::visible-child", self.on_visible_child_changed)
         
-        # Just add the stack directly, not in an event box
-        self.add(self.switcher)
-        self.add(self.stack)
-
         self.show_all()
 
     def go_to_next_child(self):

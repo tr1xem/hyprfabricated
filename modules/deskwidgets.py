@@ -24,7 +24,7 @@ config = load_config()
 
 def margin():
     return (
-        config.get("dock_icon_size") + 10
+        (config.get("dock_icon_size", 0) + 10)  
         if not data.DOCK_ALWAYS_OCCLUDED and data.DOCK_ENABLED
         else 0
     )
@@ -455,26 +455,47 @@ def create_widgets(config, widget_type):
 
 
 if data.DESKTOP_WIDGETS:
-
     if config.get("widgets_displaytype_visible", True):
 
         class Deskwidgets(Window):
             def __init__(self, **kwargs):
-                config = load_config()
                 super().__init__(
-                    name="desktop",
-                    layer="bottom",
+                    name="deskwidgets",
+                    layer="background",
+                    anchor="right center",
+                    margin="0px",  
                     exclusivity="none",
-                    child=Box(
-                        orientation="v",
-                        v_expand=True,
-                        v_align="center",
-                        h_align="center",
-                        children=create_widgets(config, "full"),
-                    ),
-                    all_visible=False,
-                    **kwargs,
+                    visible=True,
+                    all_visible=True,
                 )
+
+                self.box = Box(
+                    name="deskwidgets-box",
+                    orientation="v",
+                    spacing=8,
+                    h_expand=True,  
+                    v_expand=True,  
+                )
+
+                self.box_inner = Box(
+                    name="deskwidgets-box-inner",
+                    orientation="v",
+                    spacing=8,
+                    h_expand=True,  
+                    v_expand=True,  
+                )
+
+                self.revealer = Revealer(
+                    name="deskwidgets-revealer",
+                    transition_type="slide-left",
+                    transition_duration=250,
+                    child_revealed=True,
+                    h_expand=True,  
+                    v_expand=True,  
+                    child=self.box_inner,
+                )
+
+                config = load_config()
                 if config.get("widgets_sysinfo_visible", True):
                     sys_widget = Window(
                         layer="bottom",
