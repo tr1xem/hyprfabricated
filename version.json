@@ -1,7 +1,8 @@
 {
-	"version": "5.0.2",
-	"pkg_update": true,
+	"version": "5.0.3",
+	"pkg_update": false,
 	"changelog": [
-		"<b>fix:</b> Implemented latest Fabric WM/Compositor specific widgets."
+		"<b>tweak:</b> Default blur in ax-shell.conf",
+		"<b>fix:</b> Language size"
 	]
 }
